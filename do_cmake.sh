@@ -9,8 +9,17 @@ fi
 : ${CEPH_GIT_DIR:=..}
 
 if [ -e $BUILD_DIR ]; then
-    echo "'$BUILD_DIR' dir already exists; either rm -rf '$BUILD_DIR' and re-run, or set BUILD_DIR env var to a different directory name"
-    exit 1
+    # echo "'$BUILD_DIR' dir already exists; either rm -rf '$BUILD_DIR' and re-run, or set BUILD_DIR env var to a different directory name"
+    # exit 1
+    if [ "$EMPTY_BUILD" = "true" ]; then
+        echo "empty '$BUILD_DIR' dir, and recompile from start"
+        rm -rf ${BUILD_DIR}/*
+    else
+        echo "rm cmake cache files and reconfigure, but keep binary from previous build"
+        rm -rf ${BUILD_DIR}/CMake*
+    fi
+else
+    mkdir $BUILD_DIR
 fi
 
 PYBUILD="3"
@@ -84,9 +93,18 @@ for i in $(seq 20 -1 11); do
 done
 ARGS+=" -DCMAKE_CXX_COMPILER=$cxx_compiler"
 ARGS+=" -DCMAKE_C_COMPILER=$c_compiler"
-ARGS+=" -DWITH_MGR_DASHBOARD_FRONTEND=OFF"
 
-mkdir $BUILD_DIR
+# keep cmake minimal
+ARGS+=" -DWITH_MGR_DASHBOARD_FRONTEND=OFF"
+ARGS+=" -DWITH_TESTS=OFF"
+ARGS+=" -DWITH_BENCHMARKS=OFF"
+ARGS+=" -DWITH_CEPHFS_JAVA=OFF"
+ARGS+=" -DWITH_CEPHFS_TOP=OFF"
+ARGS+=" -DWITH_SYSTEMD=OFF"
+ARGS+=" -DWITH_OPENLDAP=OFF"
+ARGS+=" -DWITH_SPDK=OFF"
+ARGS+=" -DWITH_TELEMETRY=OFF"
+
 cd $BUILD_DIR
 if type cmake3 > /dev/null 2>&1 ; then
     CMAKE=cmake3
