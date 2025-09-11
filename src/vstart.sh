@@ -1081,8 +1081,8 @@ write_logrotate_conf() {
     cat << EOF
 $out_dir
 {
-    rotate 5
-    size 1G
+    rotate 3
+    size 10M
     copytruncate
     compress
     notifempty
